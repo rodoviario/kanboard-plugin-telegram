@@ -3,6 +3,8 @@
 namespace Kanboard\Plugin\Telegram\Notification;
 
 use Longman\TelegramBot\Request;
+use Longman\TelegramBot\Telegram as TelegramClass;
+use Longman\TelegramBot\Exception\TelegramException;
 use Kanboard\Core\Base;
 use Kanboard\Core\Notification\NotificationInterface;
 use Kanboard\Model\TaskModel;
@@ -28,17 +30,17 @@ class Telegram extends Base implements NotificationInterface
     {
         $apikey = $this->userMetadataModel->get($user['id'], 'telegram_apikey', $this->configModel->get('telegram_apikey'));
         $bot_username = $this->userMetadataModel->get($user['id'], 'telegram_username', $this->configModel->get('telegram_username'));
-        $chatid = $this->userMetadataModel->get($user['id'], 'telegram_user_cid');
+        $chat_id = $this->userMetadataModel->get($user['id'], 'telegram_user_cid');
         if (! empty($apikey)) {
             if ($eventName === TaskModel::EVENT_OVERDUE) {
                 foreach ($eventData['tasks'] as $task) {
                     $project = $this->projectModel->getById($task['project_id']);
                     $eventData['task'] = $task;
-                    $this->sendMessage($apikey, $bot_username, $chatid, $project, $eventName, $eventData);
+                    $this->sendMessage($apikey, $bot_username, $chat_id, $project, $eventName, $eventData);
                 }
             } else {
                 $project = $this->projectModel->getById($eventData['task']['project_id']);
-                $this->sendMessage($apikey, $bot_username, $chatid, $project, $eventName, $eventData);
+                $this->sendMessage($apikey, $bot_username, $chat_id, $project, $eventName, $eventData);
             }
         }
     }
@@ -55,9 +57,9 @@ class Telegram extends Base implements NotificationInterface
     {
         $apikey = $this->projectMetadataModel->get($project['id'], 'telegram_apikey', $this->configModel->get('telegram_apikey'));
         $bot_username = $this->projectMetadataModel->get($project['id'], 'telegram_username', $this->configModel->get('telegram_username'));
-        $chatid = $this->projectMetadataModel->get($project['id'], 'telegram_group_cid');
+        $chat_id = $this->projectMetadataModel->get($project['id'], 'telegram_group_cid');
         if (! empty($apikey)) {
-            $this->sendMessage($apikey, $bot_username, $chatid, $project, $eventName, $eventData);
+            $this->sendMessage($apikey, $bot_username, $chat_id, $project, $eventName, $eventData);
         }
     }
     
@@ -96,25 +98,26 @@ class Telegram extends Base implements NotificationInterface
      * Send message to Telegram
      *
      * @access protected
-     * @param  string    $chatid
+     * @param  string    $chat_id
      * @param  array     $project
      * @param  string    $eventName
      * @param  array     $eventData
      */
-    protected function sendMessage($apikey, $bot_username, $chatid, array $project, $eventName, array $eventData)
+    protected function sendMessage($apikey, $bot_username, $chat_id, array $project, $eventName, array $eventData)
     {
         $data = $this->getMessage($chat_id, $project, $eventName, $eventData);
         try
         {
             // Create Telegram API object
-            $telegram = new Longman\TelegramBot\Telegram($apikey, $bot_username);
+            $telegram = new TelegramClass($apikey, $bot_username);
 
             // Send message
             $result = Request::sendMessage($data);
         } 
-        catch (Longman\TelegramBot\Exception\TelegramException $e) 
+        catch (TelegramException $e) 
         {
             // log telegram errors
             // echo $e->getMessage();
         }
+    }
 }
