@@ -1,6 +1,6 @@
 <?php
 
-namespace Kanboard\Plugin\Jabber;
+namespace Kanboard\Plugin\Telegram;
 
 require_once __DIR__.'/vendor/autoload.php';
 
@@ -8,21 +8,21 @@ use Kanboard\Core\Translator;
 use Kanboard\Core\Plugin\Base;
 
 /**
- * Jabber Plugin
+ * Telegram Plugin
  *
- * @package  jabber
- * @author   Frederic Guillot
+ * @package  telegram
+ * @author   Manu Varkey
  */
 class Plugin extends Base
 {
     public function initialize()
     {
-        $this->template->hook->attach('template:config:integrations', 'jabber:config/integration');
-        $this->template->hook->attach('template:project:integrations', 'jabber:project/integration');
-        $this->template->hook->attach('template:user:integrations', 'jabber:user/integration');
+        $this->template->hook->attach('template:config:integrations', 'telegram:config/integration');
+        $this->template->hook->attach('template:project:integrations', 'telegram:project/integration');
+        $this->template->hook->attach('template:user:integrations', 'telegram:user/integration');
 
-        $this->userNotificationTypeModel->setType('jabber', t('Jabber'), '\Kanboard\Plugin\Jabber\Notification\Jabber');
-        $this->projectNotificationTypeModel->setType('jabber', t('Jabber'), '\Kanboard\Plugin\Jabber\Notification\Jabber');
+        $this->userNotificationTypeModel->setType('telegram', t('Telegram'), '\Kanboard\Plugin\Telegram\Notification\Telegram');
+        $this->projectNotificationTypeModel->setType('telegram', t('Telegram'), '\Kanboard\Plugin\Telegram\Notification\Telegram');
     }
 
     public function onStartup()
@@ -32,22 +32,22 @@ class Plugin extends Base
 
     public function getPluginDescription()
     {
-        return 'Receive notifications on Jabber';
+        return 'Receive notifications on Telegram';
     }
 
     public function getPluginAuthor()
     {
-        return 'Frédéric Guillot';
+        return 'Manu Varkey';
     }
 
     public function getPluginVersion()
     {
-        return '1.0.7';
+        return '0.1.0';
     }
 
     public function getPluginHomepage()
     {
-        return 'https://github.com/kanboard/plugin-jabber';
+        return 'https://github.com/manuvarkey/plugin-telegram';
     }
 
     public function getCompatibleVersion()

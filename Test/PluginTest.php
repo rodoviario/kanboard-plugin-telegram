@@ -2,7 +2,7 @@
 
 require_once 'tests/units/Base.php';
 
-use Kanboard\Plugin\Jabber\Plugin;
+use Kanboard\Plugin\Telegram\Plugin;
 
 class PluginTest extends Base
 {

@@ -1,11 +1,11 @@
 {
-    "name": "kanboard/plugin-jabber",
+    "name": "kanboard/plugin-telegram",
     "type": "project",
-    "description": "Kanboard plugin to receive notifications on Jabber",
+    "description": "Kanboard plugin to receive notifications on Telegram",
     "license": "MIT",
     "authors": [
         {
-            "name": "Frédéric Guillot"
+            "name": "Manu Varkey"
         }
     ],
     "config": {
@@ -15,6 +15,6 @@
     },
     "require" : {
         "php" : ">=5.3",
-        "fabiang/xmpp" : "0.6.1"
+        "longman/telegram-bot" : "0.51.0"
     }
 }
