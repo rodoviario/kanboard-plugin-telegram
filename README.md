@@ -44,7 +44,7 @@ Go to **Settings > Integrations > Telegram** and fill the form:
 ### Receive individual user notifications
 
 - Start a conversation with your Telegram Bot
-- Obtain the chat id of the conversation (Send a message to the bot and visit https://api.telegram.org/bot<YourBOTToken>/getUpdates )
+- Obtain the chat id of the conversation (Send a message to the bot and visit `https://api.telegram.org/bot<YourBOTToken>/getUpdates`)
 - Go to your user profile then choose **Integrations > Telegram**
 - Enter the chat id of the chat
 - Then enable Telegram notifications in your profile: **Notifications > Select Telegram**
@@ -53,7 +53,7 @@ Go to **Settings > Integrations > Telegram** and fill the form:
 
 
 - Add your Telegram Bot to the project group chat
-- Obtain the chat id of the conversation (Send a message to the group and visit https://api.telegram.org/bot<YourBOTToken>/getUpdates )
+- Obtain the chat id of the conversation (Send a message to the group and visit `https://api.telegram.org/bot<YourBOTToken>/getUpdates`)
 - Go to the project settings then choose **Integrations > Telegram**
 - Enter the chat id of the group chat
 - Then enable Telegram notifications for your project: **Notifications > Select Telegram**
