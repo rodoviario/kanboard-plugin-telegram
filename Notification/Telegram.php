@@ -78,8 +78,10 @@ class Telegram extends Base implements NotificationInterface
      * @param  array     $eventData
      * @return array
      */
-    public function getMessage($chat_id, array $project, $eventName, array $eventData)
+    public function getMessage(array $project, $eventName, array $eventData)
     {
+        
+        // Get required data
         if ($this->userSession->isLogged()) 
         {
             $author = $this->helper->user->getFullname();
@@ -90,6 +92,7 @@ class Telegram extends Base implements NotificationInterface
             $title = $this->notificationModel->getTitleWithoutAuthor($eventName, $eventData);
         }
         
+        // Build message
         $message = "\[".(isset($eventData['project_name']) ? $eventData['project_name'] : $eventData['task']['project_name'])."]\n";
         $message .= $title."\n";
         
@@ -104,7 +107,8 @@ class Telegram extends Base implements NotificationInterface
             $message .= $eventData['task']['title'];
         }
         
-        return array('chat_id' => $chat_id, 'text' => $message, 'parse_mode' => 'Markdown');
+        // Return message array
+        return $message;
     }
     
     /**
@@ -118,7 +122,9 @@ class Telegram extends Base implements NotificationInterface
      */
     protected function sendMessage($apikey, $bot_username, $chat_id, array $project, $eventName, array $eventData)
     {
-        $data = $this->getMessage($chat_id, $project, $eventName, $eventData);
+        $message = $this->getMessage($project, $eventName, $eventData);
+        $data = array('chat_id' => $chat_id, 'text' => $message, 'parse_mode' => 'Markdown');
+        
         try
         {
             // Create Telegram API object
