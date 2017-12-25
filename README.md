@@ -1,8 +1,6 @@
 Telegram plugin for Kanboard
 ===============================
 
-[![Build Status](https://travis-ci.org/kanboard/plugin-telegram.svg?branch=master)](https://travis-ci.org/kanboard/plugin-telegram)
-
 Receive Kanboard notifications on Telegram.
 
 Author
@@ -50,7 +48,6 @@ Go to **Settings > Integrations > Telegram** and fill the form:
 - Then enable Telegram notifications in your profile: **Notifications > Select Telegram**
 
 ### Receive project notifications to a chat
-
 
 - Add your Telegram Bot to the project group chat
 - Obtain the chat id of the conversation (Send a message to the group and visit `https://api.telegram.org/bot<YourBOTToken>/getUpdates`)
