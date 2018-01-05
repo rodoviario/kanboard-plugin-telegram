@@ -8,6 +8,9 @@ use Longman\TelegramBot\Exception\TelegramException;
 use Kanboard\Core\Base;
 use Kanboard\Core\Notification\NotificationInterface;
 use Kanboard\Model\TaskModel;
+use Kanboard\Model\SubtaskModel;
+use Kanboard\Model\CommentModel;
+use Kanboard\Model\TaskFileModel;
 
 /**
  * Telegram Notification
@@ -15,7 +18,24 @@ use Kanboard\Model\TaskModel;
  * @package  notification
  * @author   Manu Varkey
  */
- 
+
+// Helper functions
+
+function tempnam_sfx($path, $suffix)
+{
+    do
+    {
+        $file = $path."/".mt_rand().$suffix;
+        $fp = @fopen($file, 'x');
+    }
+    while(!$fp);
+
+    fclose($fp);
+    return $file;
+}
+
+// Overloaded classes 
+
 class Telegram extends Base implements NotificationInterface
 {
     /**
@@ -70,18 +90,21 @@ class Telegram extends Base implements NotificationInterface
     }
     
     /**
-     * Get message to send
+     * Send message to Telegram
      *
-     * @access public
+     * @access protected
+     * @param  string    $apikey
+     * @param  string    $bot_username
+     * @param  string    $chat_id
      * @param  array     $project
      * @param  string    $eventName
      * @param  array     $eventData
-     * @return array
      */
-    public function getMessage(array $project, $eventName, array $eventData)
+    protected function sendMessage($apikey, $bot_username, $chat_id, array $project, $eventName, array $eventData)
     {
-        
+    
         // Get required data
+        
         if ($this->userSession->isLogged()) 
         {
             $author = $this->helper->user->getFullname();
@@ -92,51 +115,118 @@ class Telegram extends Base implements NotificationInterface
             $title = $this->notificationModel->getTitleWithoutAuthor($eventName, $eventData);
         }
         
+        $proj_name = isset($eventData['project_name']) ? $eventData['project_name'] : $eventData['task']['project_name'];
+        $task_title = $eventData['task']['title'];
+        $task_url = $this->helper->url->to('TaskViewController', 'show', array('task_id' => $eventData['task']['id'], 'project_id' => $project['id']), '', true);
+        
+        $attachment = '';
+        
         // Build message
-        $message = "\[".(isset($eventData['project_name']) ? $eventData['project_name'] : $eventData['task']['project_name'])."]\n";
-        $message .= $title."\n";
+        
+        $message = "[".htmlspecialchars($proj_name, ENT_NOQUOTES | ENT_IGNORE)."]\n";
+        $message .= htmlspecialchars($title, ENT_NOQUOTES | ENT_IGNORE)."\n";
         
         if ($this->configModel->get('application_url') !== '') 
         {
-            $message .= "[".$eventData['task']['title']."](";
-            $message .= $this->helper->url->to('TaskViewController', 'show', array('task_id' => $eventData['task']['id'], 'project_id' => $project['id']), '', true);
-            $message .= ")";
+            $message .= '📝 <a href="'.$task_url.'">'.htmlspecialchars($task_title, ENT_NOQUOTES | ENT_IGNORE).'</a>';
         }
         else
         {
-            $message .= $eventData['task']['title'];
+            $message .= htmlspecialchars($task_title, ENT_NOQUOTES | ENT_IGNORE);
         }
         
-        // Return message array
-        return $message;
-    }
-    
-    /**
-     * Send message to Telegram
-     *
-     * @access protected
-     * @param  string    $chat_id
-     * @param  array     $project
-     * @param  string    $eventName
-     * @param  array     $eventData
-     */
-    protected function sendMessage($apikey, $bot_username, $chat_id, array $project, $eventName, array $eventData)
-    {
-        $message = $this->getMessage($project, $eventName, $eventData);
-        $data = array('chat_id' => $chat_id, 'text' => $message, 'parse_mode' => 'Markdown');
+        // Add additional informations
+        
+        $description_events = array(TaskModel::EVENT_CREATE, TaskModel::EVENT_UPDATE, TaskModel::EVENT_USER_MENTION);
+        $subtask_events = array(SubtaskModel::EVENT_CREATE, SubtaskModel::EVENT_UPDATE, SubtaskModel::EVENT_DELETE);
+        $comment_events = array(CommentModel::EVENT_UPDATE, CommentModel::EVENT_CREATE, CommentModel::EVENT_DELETE, CommentModel::EVENT_USER_MENTION);
+        
+        if (in_array($eventName, $subtask_events))  // If description available
+        {
+            $subtask_status = $eventData['subtask']['status'];
+            $subtask_symbol = '';
+            
+            if ($subtask_status == SubtaskModel::STATUS_DONE)
+            {
+                $subtask_symbol = '[X] ';
+            }
+            elseif ($subtask_status == SubtaskModel::STATUS_TODO)
+            {
+                $subtask_symbol = '[ ] ';
+            }
+            elseif ($subtask_status == SubtaskModel::STATUS_INPROGRESS)
+            {
+                $subtask_symbol = '[~] ';
+            }
+            
+            $message .= "\n<b>  ↳ ".$subtask_symbol.'</b> <em>"'.htmlspecialchars($eventData['subtask']['title'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
+        }
+        
+        elseif (in_array($eventName, $description_events))  // For subtasks available
+        {
+            $message .= "\n✏️ ".'<em>"'.htmlspecialchars($eventData['task']['description'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
+        }
+        
+        elseif (in_array($eventName, $comment_events))  // If comment available
+        {
+            $message .= "\n💬 ".'<em>"'.htmlspecialchars($eventData['comment']['comment'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
+        }
+        
+        elseif ($eventName === TaskFileModel::EVENT_CREATE)  // If attachment available
+        {
+            $file_path = getcwd()."/data/files/".$eventData['file']['path'];
+            $file_name = $eventData['file']['name'];
+            $is_image = $eventData['file']['is_image'];
+            
+            $attachment = tempnam_sfx(sys_get_temp_dir(), $file_name);
+            file_put_contents($attachment, file_get_contents($file_path));
+        }
+        
+        // Send Message
         
         try
-        {
+        {   
+            
             // Create Telegram API object
             $telegram = new TelegramClass($apikey, $bot_username);
 
+            // Message pay load
+            $data = array('chat_id' => $chat_id, 'text' => $message, 'parse_mode' => 'HTML');
+            
             // Send message
             $result = Request::sendMessage($data);
+            
+            // Send any attachment if exists
+            if ($attachment != '')
+            {
+                if ($is_image == true)
+                {
+                    // Sent image
+                    $data_file = ['chat_id' => $chat_id, 
+                                  'photo'   => Request::encodeFile($attachment),
+                                  'caption' => '📎 '.$file_name,
+                                 ];
+                    $result_att = Request::sendPhoto($data_file);
+                }
+                else
+                {
+                    // Sent attachment
+                    $data_file = ['chat_id'  => $chat_id, 
+                                  'document' => Request::encodeFile($attachment),
+                                  'caption' => '📎 '.$file_name,
+                                 ];
+                    $result_att = Request::sendDocument($data_file);
+                }
+                
+                // Remove temporory file
+                unlink($attachment);
+            }
         } 
         catch (TelegramException $e) 
         {
             // log telegram errors
-            // echo $e->getMessage();
+            error_log($e->getMessage());
         }
     }
 }
+
