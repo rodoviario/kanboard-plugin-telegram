@@ -55,3 +55,11 @@ Go to **Settings > Integrations > Telegram** and fill the form:
 - Enter the chat id of the group chat
 - Then enable Telegram notifications for your project: **Notifications > Select Telegram**
 
+
+Troubleshooting
+---------------
+
+> I am getting `curl error 60: SSL certificate problem: self signed certificate in certificate chain` on Windows
+
+- Download this CAs database `https://curl.haxx.se/ca/cacert.pem` to `c:/cacert.pem`
+- Edit your php.ini and add `openssl.cafile=c:/cacert.pem` (it should point to the file you downloaded)
