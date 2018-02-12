@@ -34,6 +34,12 @@ function tempnam_sfx($path, $suffix)
     return $file;
 }
 
+function clean($string) 
+{
+    $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+    return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+}
+
 // Overloaded classes 
 
 class Telegram extends Base implements NotificationInterface
@@ -178,7 +184,7 @@ class Telegram extends Base implements NotificationInterface
             $file_name = $eventData['file']['name'];
             $is_image = $eventData['file']['is_image'];
             
-            $attachment = tempnam_sfx(sys_get_temp_dir(), $file_name);
+            $attachment = tempnam_sfx(sys_get_temp_dir(), clean($file_name));
             file_put_contents($attachment, file_get_contents($file_path));
         }
         
