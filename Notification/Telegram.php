@@ -147,7 +147,7 @@ class Telegram extends Base implements NotificationInterface
         $subtask_events = array(SubtaskModel::EVENT_CREATE, SubtaskModel::EVENT_UPDATE, SubtaskModel::EVENT_DELETE);
         $comment_events = array(CommentModel::EVENT_UPDATE, CommentModel::EVENT_CREATE, CommentModel::EVENT_DELETE, CommentModel::EVENT_USER_MENTION);
         
-        if (in_array($eventName, $subtask_events))  // If description available
+        if (in_array($eventName, $subtask_events))  // For subtask events
         {
             $subtask_status = $eventData['subtask']['status'];
             $subtask_symbol = '';
@@ -168,9 +168,12 @@ class Telegram extends Base implements NotificationInterface
             $message .= "\n<b>  ↳ ".$subtask_symbol.'</b> <em>"'.htmlspecialchars($eventData['subtask']['title'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
         }
         
-        elseif (in_array($eventName, $description_events))  // For subtasks available
+        elseif (in_array($eventName, $description_events))  // If description available
         {
-            $message .= "\n✏️ ".'<em>"'.htmlspecialchars($eventData['task']['description'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
+            if ($eventData['task']['description'] != '')
+            {
+                $message .= "\n✏️ ".'<em>"'.htmlspecialchars($eventData['task']['description'], ENT_NOQUOTES | ENT_IGNORE).'"</em>';
+            }
         }
         
         elseif (in_array($eventName, $comment_events))  // If comment available
