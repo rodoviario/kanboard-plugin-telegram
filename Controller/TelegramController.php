@@ -25,7 +25,7 @@ class TelegramController extends BaseController
 
         $apikey = $this->userMetadataModel->get($user['id'], 'telegram_apikey', $this->configModel->get('telegram_apikey'));
         $bot_username = $this->userMetadataModel->get($user['id'], 'telegram_username', $this->configModel->get('telegram_username'));
-        $offset = 1+$this->userMetadataModel->get($user['id'], 'telegram_offset', $this->configModel->get('telegram_offset'));
+        $offset = 0+$this->userMetadataModel->get($user['id'], 'telegram_offset', $this->configModel->get('telegram_offset'));
         $private_message = mb_substr(urldecode($this->request->getStringParam('private_message')),0,32);
 
         list($offset, $chat_id, $user_name) = $this->get_chat_id($apikey, $bot_username, $offset, $private_message);
@@ -53,7 +53,7 @@ class TelegramController extends BaseController
 
         $apikey = $this->projectMetadataModel->get($project['id'], 'telegram_apikey', $this->configModel->get('telegram_apikey'));
         $bot_username = $this->projectMetadataModel->get($project['id'], 'telegram_username', $this->configModel->get('telegram_username'));
-        $offset = 1+$this->projectMetadataModel->get($project['id'], 'telegram_offset', $this->configModel->get('telegram_offset'));
+        $offset = 0+$this->projectMetadataModel->get($project['id'], 'telegram_offset', $this->configModel->get('telegram_offset'));
         $private_message = mb_substr(urldecode($this->request->getStringParam('private_message')),0,32);
 
         list($offset, $chat_id, $user_name) = $this->get_chat_id($apikey, $bot_username, $offset, $private_message);
@@ -76,53 +76,54 @@ class TelegramController extends BaseController
 
     private function get_chat_id($apikey, $bot_username, $offset, $private_message)
     {
-        try
-        {
-          if(empty($private_message) || mb_strlen($private_message) != 32){
-            throw new TelegramException("empty private_message!");
-          }
+      try
+      {
+        if(empty($private_message) || mb_strlen($private_message) != 32){
+          throw new TelegramException("empty private_message!");
+        }
 
-            // Create Telegram API object
-            $telegram = new TelegramClass($apikey, $bot_username);
+        // Create Telegram API object
+        $telegram = new TelegramClass($apikey, $bot_username);
 
-          $limit=100;
-          $timeout = 1;
-          $response  = Request::getUpdates(
+        $limit=100;
+        $timeout = 1;
+        $response  = Request::getUpdates(
           [
-                  'offset'  => $offset,
-                  'limit'   => $limit,
-                  'timeout' => $timeout,
+          'offset'  => $offset+1,
+          'limit'   => $limit,
+          'timeout' => $timeout,
           ]
           );
 
-          $chat_id="";
-          $user_name="";
+        $chat_id="";
+        $user_name="";
 
-          if ($response->isOk()) {
-              //Process all updates
-              /** @var Update $result */
-              foreach ((array) $response->getResult() as $result) {
-                $offset = $result->getUpdateId();
-                if( $result->getMessage() != NULL){
-                    if( $private_message === $result->getMessage()->getText() ){
-                  $chat_id = $result->getMessage()->getChat()->getId();
-                  $user_name = $result->getMessage()->getChat()->getFirstName();
-                    }
-                }
+        if ($response->isOk()) {
+          //Process all updates
+          /** @var Update $result */
+          foreach ((array) $response->getResult() as $result) {
+            $offset = $result->getUpdateId();
+            if( $result->getMessage() != NULL){
+              if( $private_message === mb_substr(trim($result->getMessage()->getText()),0,32) ){
+                $chat_id = $result->getMessage()->getChat()->getId();
+                $user_name = $result->getMessage()->getChat()->getFirstName();
+                break;
               }
-          }else{
-            throw new TelegramException($response->printError(true));
+            }
           }
+        }else{
+          throw new TelegramException($response->printError(true));
         }
-        catch (TelegramException $e)
-        {
-            // log telegram errors
-            error_log($e->getMessage());
-            $this->flash->failure(t('Telegram error: ').$e->getMessage());
-            return 0;//$this->response->redirect($this->helper->url->to('UserViewController', 'integrations', array('user_id' => $user['id'] )), true);
-        }
+      }
+      catch (TelegramException $e)
+      {
+        // log telegram errors
+        error_log($e->getMessage());
+        $this->flash->failure(t('Telegram error: ').$e->getMessage());
+        return 0;//$this->response->redirect($this->helper->url->to('UserViewController', 'integrations', array('user_id' => $user['id'] )), true);
+      }
 
-    return array($offset, $chat_id, $user_name);
+      return array($offset, $chat_id, $user_name);
     }
 
     public function save_user_chat_id(){
