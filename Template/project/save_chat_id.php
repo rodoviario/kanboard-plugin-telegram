@@ -12,14 +12,14 @@
     </div>
 <?php else: ?>
     <div class="confirm">
-	<p class="alert alert-info">
-    	    <?= t('Save chat id="%s" from "%s"?', $this->text->e($chat_id), $this->text->e($user_name)) ?>
-        </p>
+    <p class="alert alert-info">
+    <?= t('Save chat id="%s" from "%s"?', $this->text->e($chat_id), $this->text->e($user_name)) ?>
+    </p>
 
-	<?= $this->modal->confirmButtons(
-    	    'TelegramController',
-            'save_project_chat_id',
-	    array('plugin' => 'Telegram','project_id' => $project['id'], 'chat_id' => $chat_id)
+    <?= $this->modal->confirmButtons(
+          'TelegramController',
+          'save_project_chat_id',
+          array('plugin' => 'Telegram','project_id' => $project['id'], 'chat_id' => $chat_id)
         ) ?>
     </div>
 <?php endif ?>
