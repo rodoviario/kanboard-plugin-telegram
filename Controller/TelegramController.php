@@ -33,13 +33,13 @@ class TelegramController extends BaseController
         if($offset != 0){
             //ok
             $this->userMetadataModel->save($user['id'], array('telegram_offset' => $offset) );
-                  $this->response->html($this->template->render('telegram:user/save_chat_id', array(
-                'chat_id' => $chat_id,
-                'user_name' => $user_name,
-                'private_message' => $private_message,
-                'bot_url' => "https://t.me/".$bot_username,
-                'user' => $user
-                )));
+            $this->response->html($this->template->render('telegram:user/save_chat_id', array(
+              'chat_id' => $chat_id,
+              'user_name' => $user_name,
+              'private_message' => $private_message,
+              'bot_url' => "https://t.me/".$bot_username,
+              'user' => $user
+              )));
         }else{
             //error
             $this->response->redirect($this->helper->url->to('UserViewController', 'integrations', array('user_id' => $user['id'] )), true);
@@ -61,13 +61,13 @@ class TelegramController extends BaseController
         if($offset != 0){
             //ok
             $this->projectMetadataModel->save($project['id'], array('telegram_offset' => $offset) );
-                  $this->response->html($this->template->render('telegram:project/save_chat_id', array(
-                'chat_id' => $chat_id,
-                'user_name' => $user_name,
-                'private_message' => $private_message,
-                'bot_url' => "https://t.me/".$bot_username,
-                'project' => $project
-                )));
+            $this->response->html($this->template->render('telegram:project/save_chat_id', array(
+              'chat_id' => $chat_id,
+              'user_name' => $user_name,
+              'private_message' => $private_message,
+              'bot_url' => "https://t.me/".$bot_username,
+              'project' => $project
+              )));
         }else{
             //error
             $this->response->redirect($this->helper->url->to('ProjectViewController', 'integrations', array('project_id' => $project['id'] )), true);
