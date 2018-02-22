@@ -9,11 +9,6 @@ use Longman\TelegramBot\Request;
 use Longman\TelegramBot\Telegram as TelegramClass;
 use Longman\TelegramBot\Exception\TelegramException;
 use Kanboard\Core\Base;
-use Kanboard\Core\Notification\NotificationInterface;
-use Kanboard\Model\TaskModel;
-use Kanboard\Model\SubtaskModel;
-use Kanboard\Model\CommentModel;
-use Kanboard\Model\TaskFileModel;
 
 
 class TelegramController extends BaseController
