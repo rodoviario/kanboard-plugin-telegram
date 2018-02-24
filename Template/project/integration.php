@@ -1,4 +1,4 @@
-<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/telegram-icon.png"/>&nbsp;Telegram</h3>
+<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/Asset/telegram-icon.png"/>&nbsp;Telegram</h3>
 <div class="panel">
     <?= $this->form->label(t('Chat id of group chat with bot'), 'telegram_group_cid') ?>
     <?= $this->form->text('telegram_group_cid', $values, array()) ?>
