@@ -1,4 +1,4 @@
-<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/telegram-icon.png"/>&nbsp;Telegram</h3>
+<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/Asset/telegram-icon.png"/>&nbsp;Telegram</h3>
 <div class="panel">
     <?= $this->form->label(t('Telegram bot username'), 'telegram_username') ?>
     <?= $this->form->text('telegram_username', $values, array()) ?>

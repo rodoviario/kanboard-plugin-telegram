@@ -1,4 +1,4 @@
-<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/telegram-icon.png"/>&nbsp;Telegram</h3>
+<h3><img src="<?= $this->url->dir() ?>plugins/Telegram/Asset/telegram-icon.png"/>&nbsp;Telegram</h3>
 <?php if (empty($bot_name)): ?>
     <p class="alert alert-info">
       <?= t('Telegram bot is not configured in Kanboard settings.') ?><br/>
