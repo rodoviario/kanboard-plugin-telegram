@@ -8,6 +8,9 @@
 
     <p class="form-help"><a href="https://core.telegram.org/bots" target="_blank"><?= t('Help on how to generate a bot') ?></a></p>
 
+    <?= $this->form->hidden('forward_attachments', array('forward_attachments' => 0)) ?>
+    <?= $this->form->checkbox('forward_attachments', t('Sent attachments along with notification'), 1, isset($values['forward_attachments']) && $values['forward_attachments'] == 1) ?>    
+    
     <div class="form-actions">
         <input type="submit" value="<?= t('Save') ?>" class="btn btn-blue"/>
     </div>

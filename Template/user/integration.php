@@ -12,8 +12,8 @@
     ?>
     <p>
       <?= t('To get your Telegram chat id,')?><br/>
-      <?= t('please, send following message %s to',$random )?> <a href="<?= $bot_url ?>" target="_blank" rel="noreferrer"><?= $bot_url ?></a><br/>
-      <?= t('then press')?> <?= $this->modal->medium('none', t('Get chat id'), 'TelegramController', 'get_user_chat_id',array('plugin' => 'Telegram', 'private_message' => $random )) ?>
+      <?= t('1. Send the message %s to',$random )?> <a href="<?= $bot_url ?>" target="_blank" rel="noreferrer"><?= $bot_url ?></a><br/>
+      <?= t('2. Press')?><?= $this->modal->medium('none', t('Get chat id'), 'TelegramController', 'get_user_chat_id',array('plugin' => 'Telegram', 'private_message' => $random )) ?>
     </p>
 
     <div class="panel">
