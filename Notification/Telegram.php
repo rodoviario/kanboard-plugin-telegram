@@ -190,6 +190,16 @@ class Telegram extends Base implements NotificationInterface
             
             // Create Telegram API object
             $telegram = new TelegramClass($apikey, $bot_username);
+            
+            // Setup proxy details if set in kanboard configuration
+            if (HTTP_PROXY_HOSTNAME != '')
+            {
+                Request::setClient(new \GuzzleHttp\Client([
+                               'base_uri' => 'https://api.telegram.org',
+                               'proxy'    => 'tcp://'.HTTP_PROXY_HOSTNAME.':'.HTTP_PROXY_PORT,
+                               'verify'   => false,
+                             ]));
+            }
 
             // Message pay load
             $data = array('chat_id' => $chat_id, 'text' => $message, 'parse_mode' => 'HTML');
